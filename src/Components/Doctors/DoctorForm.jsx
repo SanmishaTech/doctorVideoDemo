@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Joi from "joi";
-import { apiClient } from "../../api";
 
 function DoctorForm({ doctor, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -71,14 +70,7 @@ function DoctorForm({ doctor, onSave, onCancel }) {
     console.log("Submitting Data:", formData);
 
     try {
-      let response;
-      if (doctor?._id) {
-        response = await apiClient.put(`/doctors/${doctor._id}`, formData);
-      } else {
-        response = await apiClient.post("/doctors", formData);
-      }
-      console.log("API Response:", response.data);
-      onSave(response.data); // Call parent to update list
+      await onSave(formData); // Call parent to save data
     } catch (error) {
       console.error("Error saving doctor:", error);
     } finally {
