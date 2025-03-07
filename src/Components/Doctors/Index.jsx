@@ -3,7 +3,7 @@ import DoctorsList from "./DoctorsList";
 import DoctorForm from "./DoctorForm";
 import { apiClient } from "../../api";
 
-function Doctors() {
+function Doctors({ onSelectDoctor }) {
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [doctors, setDoctors] = useState([]);
 
@@ -48,6 +48,10 @@ function Doctors() {
     }
   };
 
+  const handleSelectDoctor = (doctor) => {
+    onSelectDoctor(doctor.videoUrl);
+  };
+
   return (
     <div>
       {editingDoctor ? (
@@ -62,6 +66,7 @@ function Doctors() {
           onEdit={setEditingDoctor} 
           onAdd={() => setEditingDoctor({})} // Open empty form for new doctor
           onDelete={handleDelete}
+          onSelectDoctor={handleSelectDoctor}
         />
       )}
     </div>
