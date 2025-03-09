@@ -41,7 +41,17 @@ function DoctorsList({ doctors, onEdit, onAdd, onDelete, onSelectDoctor }) {
               ${selectedDoctor?._id === doctor._id ? "bg-blue-500" : "hover:bg-gray-100"}`}
               onClick={() => handleRowClick(doctor)}
             >
-              <td className="border p-2">{doctor.name}</td>
+              <td className="border p-2">
+                <a 
+                  href={`/record/${doctor.videoId}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-500 underline"
+                >
+                  {doctor.name}
+                </a>
+              </td>
               <td className="border p-2">{doctor.designation}</td>
               <td className="border p-2">{doctor.degree}</td>
               <td className="border p-2">{doctor.mobile}</td>
@@ -50,7 +60,7 @@ function DoctorsList({ doctors, onEdit, onAdd, onDelete, onSelectDoctor }) {
                 {doctor.videoUrl && <FaVideo className="text-black-500" />}
               </td>              
               <td className="border p-2">
-                <button className="px-3 py-1 bg-yellow-500 text-white rounded mr-2" onClick={() => onEdit(doctor)}>Edit</button>
+                <button className="px-3 py-1 bg-yellow-500 text-white rounded mr-2" onClick={(e) => { e.stopPropagation(); onEdit(doctor); }}>Edit</button>
                 <button 
                   className="px-3 py-1 bg-red-500 text-white rounded" 
                   onClick={(e) => {

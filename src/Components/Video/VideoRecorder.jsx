@@ -1,10 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { apiClient } from "../../api";
 
 function VideoRecorder({ videoId }) {
   const [isRecording, setIsRecording] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [progressMessage, setProgressMessage] = useState("");
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const timerRef = useRef(null);
 
   const handleStartRecording = async () => {
     // Call deleteVideo API to delete old video
@@ -16,7 +19,7 @@ function VideoRecorder({ videoId }) {
     }
 
     setIsRecording(true);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     videoRef.current.srcObject = stream;
     mediaRecorderRef.current = new MediaRecorder(stream, {
       mimeType: "video/webm",
@@ -37,7 +40,12 @@ function VideoRecorder({ videoId }) {
       }
     };
 
-    mediaRecorderRef.current.start(1000); // Send data every second
+    mediaRecorderRef.current.start(3000); // Send data every second
+
+    // Start the timer
+    timerRef.current = setInterval(() => {
+      setTimer((prevTimer) => prevTimer + 1);
+    }, 1000);
   };
 
   const handleStopRecording = async () => {
@@ -45,13 +53,52 @@ function VideoRecorder({ videoId }) {
     mediaRecorderRef.current.stop();
     videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
 
+    // Stop the timer
+    clearInterval(timerRef.current);
+    setTimer(0);
+
+    // Display progress message
+    setProgressMessage("Processing Video...");
+
     // Call finishUpload API
     try {
       const response = await apiClient.post(`/finishUpload/${videoId}`);
       console.log(response.data.message);
+      setProgressMessage("Video Uploaded.");
     } catch (error) {
       console.error('❌ Error finishing upload:', error);
+      setProgressMessage("Error uploading video.");
     }
+  };
+
+  useEffect(() => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.onstop = async () => {
+        console.log("MediaRecorder stopped, handling remaining chunks...");
+        // Handle remaining chunks
+        mediaRecorderRef.current.ondataavailable = async (event) => {
+          if (event.data.size > 0) {
+            // Send remaining video chunk to the server
+            const formData = new FormData();
+            formData.append('video', event.data, 'video.webm');
+
+            try {
+              const response = await apiClient.post(`/upload/${videoId}`, formData);
+              console.log(response.data.message);
+            } catch (error) {
+              console.error('❌ Error uploading remaining video chunk:', error);
+            }
+          }
+        };
+      };
+    }
+  }, [videoId]);
+
+  // Format the timer value as mm:ss
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   return (
@@ -74,6 +121,16 @@ function VideoRecorder({ videoId }) {
           Finish
         </button>
       </div>
+      {isRecording && (
+        <div className="mt-4 text-xl font-bold">
+          Timer: {formatTime(timer)}
+        </div>
+      )}
+      {progressMessage && (
+        <div className="mt-4 text-xl font-bold">
+          {progressMessage}
+        </div>
+      )}
     </div>
   );
 }
