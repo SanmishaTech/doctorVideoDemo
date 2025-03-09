@@ -1,0 +1,42 @@
+/* Container for the DoctorsList component */
+.doctors-list-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  th, td {
+    padding: 4px;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}

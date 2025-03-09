@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import DoctorsList from "./DoctorsList";
 import DoctorForm from "./DoctorForm";
 import { apiClient } from "../../api";
+import "./Doctors.css"; // Import the CSS file for styling
 
 function Doctors({ onSelectDoctor }) {
   const [editingDoctor, setEditingDoctor] = useState(null);
@@ -53,7 +54,7 @@ function Doctors({ onSelectDoctor }) {
   };
 
   return (
-    <div>
+    <div className="doctors-container">
       {editingDoctor ? (
         <DoctorForm 
           doctor={editingDoctor} 
